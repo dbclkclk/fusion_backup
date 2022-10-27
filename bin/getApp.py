@@ -121,12 +121,12 @@ try:
         if args.app == None:
             if args.zip == None:
                 sys.exit("either the --app or the --zip argument is required.  Can not proceed.")
-
+        suffix = "" if args.suffixApp is None else f"_{args.suffixApp}"
         if args.dir is None and args.zip is None:
             # make default dir name
-            defDir = f"{str(args.app)}_{args.suffixApp}" if args.suffixApp != None else f"{str(args.app)}"
+            defDir = f"{args.newApp or args.app}{suffix}"
         elif args.dir is None and args.zip is not None:
-            defDir = f"{str(args.zip)}_{args.suffixApp}" if args.suffixApp != None else f"{str(args.zip)}"
+            defDir = f"{str(args.zip)}{suffix}"
         if args.time != None:
             defDir = newDir + "_" + datetime.datetime.now().strftime('%Y%m%d_%H%M')
         args.dir = defDir
@@ -333,10 +333,10 @@ try:
                 extractFromZip(filename, zipfile)
             elif shouldExtractEmbeddedZip(filename):
                 extractZip(filename, zipfile)
-
         if zipfile:
            zipfile.close()
-
+        emptydirectory = f"{args.dir}/configsets"
+        deleteEmptyDirectory(emptydirectory)
 
     # check for blob zips which should be extracted intact or non-zipped configsets
     def shouldExtractFile(filename):
@@ -352,7 +352,16 @@ try:
             return True
         return False
 
-
+    def  deleteEmptyDirectory (currentDir):
+        index = 0
+        for root, dirs, files in os.walk(currentDir):
+            for dir in dirs:
+                newDir = os.path.join(root, dir)
+                index += 1
+                try:
+                    os.removedirs(newDir)
+                except:
+                    pass
     # check for embeded and zipped configsets in need of extraction
     def shouldExtractEmbeddedZip(filename):
         path = filename.split('/')
@@ -429,6 +438,8 @@ try:
             if 'maxShardsPerNode' in jData['solrParams']: 
                 jData['solrParams']['maxShardsPerNode'] = args.maxShardsPerNode
         # replace spaces in filename to make the files sed friendly
+        if args.newApp is not None or args.suffixApp is not None:
+            filename = filename.replace(args.app, f'{args.newApp or args.app}{suffix}')
         filename2 = filename.replace(' ', '_')
         if altSubDir is None:
             subDir = type
