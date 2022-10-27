@@ -124,9 +124,9 @@ try:
 
         if args.dir is None and args.zip is None:
             # make default dir name
-            defDir = f"{str(args.app)}_{args.newApp}" if args.newApp != None else f"{str(args.app)}"
+            defDir = f"{str(args.app)}_{args.suffixApp}" if args.suffixApp != None else f"{str(args.app)}"
         elif args.dir is None and args.zip is not None:
-            defDir = f"{str(args.zip)}_{args.newApp}" if args.newApp != None else f"{str(args.zip)}"
+            defDir = f"{str(args.zip)}_{args.suffixApp}" if args.suffixApp != None else f"{str(args.zip)}"
         if args.time != None:
             defDir = newDir + "_" + datetime.datetime.now().strftime('%Y%m%d_%H%M')
         args.dir = defDir
@@ -370,8 +370,9 @@ try:
 
         if zip.getinfo(filename).file_size > 0:
             zip.extract(filename, args.dir)
-            if args.newApp != None:
-                newfilename = filename.replace(args.app, f"{args.app}_{args.newApp}")  
+            if args.suffixApp is not None or args.newApp is not None:
+                suffix = '' if args.suffixApp is None else f"_{args.suffixApp}"
+                newfilename = filename.replace(args.app, f"{args.newApp or args.app}{suffix}")  
                 newdirectory = os.path.join(args.dir, os.path.dirname(newfilename))
                 if not os.path.isdir(newdirectory):
                     os.makedirs(newdirectory)
@@ -420,10 +421,10 @@ try:
         processTypedElementFunc(elements, type)
 
     def jsonToFile(jData, type,filename, altSubDir=None):
-        if args.newApp is not None: 
-            out = json.dumps(jData)
-            out = out.replace(args.app, f'{args.app}_{args.newApp}')
-            jData = json.loads(out)
+        out = json.dumps(jData)
+        suffix = '' if args.suffixApp is None else f"_{args.suffixApp}"
+        out = out.replace(args.app, f'{args.newApp or args.app}{suffix}')
+        jData = json.loads(out)
         if 'solrParams' in jData:
             if 'maxShardsPerNode' in jData['solrParams']: 
                 jData['solrParams']['maxShardsPerNode'] = args.maxShardsPerNode
@@ -568,7 +569,7 @@ try:
         #read file contents to string
         data = fin.read()
         #replace all occurrences of the required string
-        data = data.replace(args.dir, args.dir + '_' +args.newApp)
+        data = data.replace(args.dir, args.dir + '_' +args.suffixApp)
         #close the input file
         fin.close()
         #open the input file in write mode
@@ -608,11 +609,12 @@ try:
 
         # parser.add_argument_group('bla bla bla instruction go here and they are really long \t and \n have tabs and\n newlines')
         parser.add_argument("-a", "--app", help="App to export")  # ,default="lwes_"
-        parser.add_argument("-n", "--newApp", help="Name of the app to import confirmatoin if different from exported app")  # ,default="lwes_"
+        parser.add_argument("-n", "--newApp", help="Name of the prefixed app name to import")  # ,default="lwes_"
+        parser.add_argument("-f", "--suffixApp", help="Name of the app to import confirmatoin if different from exported app")  # ,default="lwes_"
         parser.add_argument("-m", "--maxShardsPerNode", help="Max Shards Per Node for the target Fusion")  # ,default="lwes_"
         parser.add_argument("-t", "--time", help="Add time to project name")  # ,default="lwes_"
         parser.add_argument("-d", "--dir",
-                            help="Output directory, default: '${app}_${new}_ccyymmddhhmm'.")  # ,default="default"
+                            help="Output directory, default: '${app}_${suffixApp}_ccyymmddhhmm'.")  # ,default="default"
         parser.add_argument("-s", "--server", metavar="SVR",
                             help="Server url e.g. http://localhost:80, \ndefault: ${lw_IN_SERVER} or 'localhost'.")  # default="localhost"
         parser.add_argument("-u", "--user",
