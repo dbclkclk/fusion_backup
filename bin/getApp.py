@@ -438,6 +438,10 @@ try:
             if 'maxShardsPerNode' in jData['solrParams']: 
                 jData['solrParams']['maxShardsPerNode'] = args.maxShardsPerNode
         # replace spaces in filename to make the files sed friendly
+        if args.zookeeper is not None:
+            if 'properties' in jData:
+                if 'zk_host_string' in jData['properties']:
+                    jData['properties']['zk_host_string'] = args.zookeeper
         if args.newApp is not None or args.suffixApp is not None:
             filename = filename.replace(args.app, f'{args.newApp or args.app}{suffix}')
         filename2 = filename.replace(' ', '_')
@@ -624,6 +628,7 @@ try:
         parser.add_argument("-f", "--suffixApp", help="Name of the app to import confirmatoin if different from exported app")  # ,default="lwes_"
         parser.add_argument("-m", "--maxShardsPerNode", help="Max Shards Per Node for the target Fusion")  # ,default="lwes_"
         parser.add_argument("-t", "--time", help="Add time to project name")  # ,default="lwes_"
+        parser.add_argument("-k", "--zookeeper", help="Zookeeper config to add to datasource")
         parser.add_argument("-d", "--dir",
                             help="Output directory, default: '${app}_${suffixApp}_ccyymmddhhmm'.")  # ,default="default"
         parser.add_argument("-s", "--server", metavar="SVR",
