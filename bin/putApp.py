@@ -518,6 +518,11 @@ try:
                     debug("Not creating Solr collection named " + payload['solrParams']['name'] )
                 if payload["type"] is not None and payload["type"] == "DATA":
                     params += "&defaultFeatures=false"
+                
+                if args.zookeeper is not None:
+                    if 'properties' in payload:
+                        if 'zk_host_string' in payload['properties']:
+                            payload['properties']['zk_host_string'] = args.zookeeper
 
                 if doPop:
                     payload["solrParams"].pop('name', None)
@@ -869,7 +874,7 @@ try:
         parser.add_argument("-u","--user", help="Fusion user, default: ${lw_USER} or 'admin'.") #,default="admin"
         parser.add_argument("--password", help="Fusion password,  default: ${lw_PASSWORD} or 'password123'.") #,default="password123"
         parser.add_argument("--jwt",help="JWT token for authentication.  If set, --password is ignored",default=None)
-
+        parser.add_argument("-k", "--zookeeper", help="Zookeeper config to add to datasource")
         parser.add_argument("--debug",help="Print debug messages while running, default: False.",default=False,action="store_true")# default=False
         parser.add_argument("--noVerify",help="Do not verify SSL certificates if using https, default: False.",default=False,action="store_true")# default=False
         parser.add_argument("-v","--verbose",help="Print details, default: False.",default=False,action="store_true")# default=False
