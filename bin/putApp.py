@@ -520,6 +520,7 @@ try:
                     params += "&defaultFeatures=false"
                 
                 if args.zookeeper is not None:
+                    print(f"I AM HERERERERE ==================== {args}")
                     if 'properties' in payload:
                         if 'zk_host_string' in payload['properties']:
                             payload['properties']['zk_host_string'] = args.zookeeper
