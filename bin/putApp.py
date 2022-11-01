@@ -521,7 +521,7 @@ try:
                 
                 if args.zookeeper is not None:
                     if 'properties' in payload:
-                         print(f"I AM HERERERERE ==================== {payload}")
+                        print(f"I AM HERERERERE ==================== {payload}")
                         if 'zk_host_string' in payload['properties']:
                             payload['properties']['zk_host_string'] = args.zookeeper
 
