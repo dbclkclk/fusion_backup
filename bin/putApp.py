@@ -804,7 +804,6 @@ try:
     def replaceZookeeperConfig(jsonData):
         if args.zookeeper is not None:
             if 'properties' in jsonData:
-                print(f"I AM HERERE ================= {jsonData}")
                 if 'zk_host_string' in jsonData['properties']:
                     jsonData['properties']['zk_host_string'] = args.zookeeper
         return jsonData
