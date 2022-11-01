@@ -518,12 +518,6 @@ try:
                     debug("Not creating Solr collection named " + payload['solrParams']['name'] )
                 if payload["type"] is not None and payload["type"] == "DATA":
                     params += "&defaultFeatures=false"
-                
-                if args.zookeeper is not None:
-                    print(f"I AM HERERERERE ==================== {payload}")
-                    if 'properties' in payload:
-                        if 'zk_host_string' in payload['properties']:
-                            payload['properties']['zk_host_string'] = args.zookeeper
 
                 if doPop:
                     payload["solrParams"].pop('name', None)
@@ -756,6 +750,8 @@ try:
         for f in getFileListForType(type):
             with open(os.path.join(args.dir,f), 'r') as jfile:
                 payload = json.load(jfile)
+                if type == 'dataSources':
+                    payload = replaceZookeeperConfig(payload)
                 if isSubstitutionType(type):
                     if args.verbose and isinstance(varReplacements, dict):
                         sprint("Doing substitution for file " + f)
@@ -804,6 +800,14 @@ try:
         configurations = doHttpJsonGet(url)
         if configurations is not None and configurations["app.version"]:
             fusionVersion = configurations["app.version"]
+    
+    def replaceZookeeperConfig(jsonData):
+        if args.zookeeper is not None:
+            if 'properties' in jsonData:
+                print(f"I AM HERERE ================= {jsonData}")
+                if 'zk_host_string' in jsonData['properties']:
+                    jsonData['properties']['zk_host_string'] = args.zookeeper
+        return jsonData
 
     def main():
         initArgs()
